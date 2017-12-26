@@ -58,10 +58,10 @@ Connection::Connection(const char* portname, int speed, int timeout){
     set_blocking(fd, 0, timeout);
 }
 
-ssize_t Connection::cwrite(const void* buff){
+ssize_t Connection::cwrite(const void* buff, size_t size){
     return write(fd, buff, sizeof(buff));
 }
 
-ssize_t Connection::cread(void* buff){
+ssize_t Connection::cread(void* buff, size_t size){
     return read(fd, buff, sizeof(buff));
 }

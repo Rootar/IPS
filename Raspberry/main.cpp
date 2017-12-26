@@ -20,7 +20,10 @@ int main(){
     // }
 
 	Connection a;// = Connection;
+	char pustka[] = {'a','b','c','d','e','f'};
 	char test[3] = {'e','l','o'};
-	a.cwrite(test);
+	std::cout << sizeof(pustka);
+	a.cwrite(pustka, sizeof(pustka));
+	usleep ((7 + 25) * 1000);
     return 0;
 }
