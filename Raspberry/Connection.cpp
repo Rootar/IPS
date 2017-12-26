@@ -59,9 +59,9 @@ Connection::Connection(const char* portname, int speed, int timeout){
 }
 
 ssize_t Connection::cwrite(const void* buff, size_t size){
-    return write(fd, buff, sizeof(buff));
+    return write(fd, buff, size);
 }
 
 ssize_t Connection::cread(void* buff, size_t size){
-    return read(fd, buff, sizeof(buff));
+    return read(fd, buff, size);
 }
