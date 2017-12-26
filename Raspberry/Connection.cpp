@@ -62,6 +62,6 @@ ssize_t Connection::cwrite(const void* buff){
     return write(fd, buff, sizeof(buff));
 }
 
-ssize_t Connection::csread(const void* buff){
+ssize_t Connection::cread(const void* buff){
     return read(fd, buff, sizeof(buff));
 }
