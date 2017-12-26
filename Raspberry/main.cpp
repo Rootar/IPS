@@ -1,3 +1,4 @@
+
 #include "Connection.h"
 
 //const void* buff
@@ -21,7 +22,17 @@ int main(){
 
 	Connection a;// = Connection;
 	char pustka[] = {'a','b','c','d','e','f'};
-	char test[3] = {'e','l','o'};
+	char test[50];
 	a.cwrite(pustka, sizeof(pustka));
+
+	while(true){
+		int x = a.cread(test,sizeof(test));
+		if(x > 0){
+			std::cout << test;
+			for(int i = 0; i < sizeof(test); i++)
+				test[i] = '\0';
+		}
+	}
+			
     return 0;
 }
