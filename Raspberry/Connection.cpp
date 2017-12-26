@@ -1,6 +1,6 @@
 #include "Connection.h"
 
-int set_interface_attribs(int fd, int speed, int parity, int timeout){
+int Connection::set_interface_attribs(int fd, int speed, int parity, int timeout){
     struct termios tty;
     memset (&tty, 0, sizeof tty);
     if (tcgetattr (fd, &tty) != 0)
@@ -38,7 +38,7 @@ int set_interface_attribs(int fd, int speed, int parity, int timeout){
 
 }
 
-void set_blocking(int fd, int should_block, int timeout){
+void Connection::set_blocking(int fd, int should_block, int timeout){
     struct termios tty;
     memset (&tty, 0, sizeof tty);
     if (tcgetattr (fd, &tty) != 0){}
@@ -49,11 +49,19 @@ void set_blocking(int fd, int should_block, int timeout){
     if(tcsetattr (fd, TCSANOW, &tty) != 0){}
 }
 
-Connection(const char* portname, int speed, int timeout){
-    int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
+Connection::Connection(const char* portname, int speed, int timeout){
+    fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 
     if(fd < 0) throw cant_open_port();
 
-    Connection::set_interface_attribs(fd, speed, 0, timeout);
-    Connection::set_blocking(fd, 0, timeout);
+    set_interface_attribs(fd, speed, 0, timeout);
+    set_blocking(fd, 0, timeout);
+}
+
+ssize_t Connection::cwrite(const void* buff){
+    return write(fd, buff, sizeof(buff));
+}
+
+ssize_t Connection::csread(const void* buff){
+    return read(fd, buff, sizeof(buff));
 }
