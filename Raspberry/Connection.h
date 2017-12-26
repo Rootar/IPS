@@ -16,5 +16,5 @@ private:
 public:
     Connection(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1);
     ssize_t cwrite(const void* buff);
-    ssize_t cread(const void* buff);
+    ssize_t cread(void* buff);
 };
