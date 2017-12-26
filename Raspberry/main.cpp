@@ -19,6 +19,8 @@ int main(){
     //         std::cout << buf << std::endl;
     // }
 
-    Connection a();
+	Connection a;// = Connection;
+	char test[3] = {'e','l','o'};
+	a.cwrite(test);
     return 0;
 }
