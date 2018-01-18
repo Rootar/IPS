@@ -5,8 +5,12 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 void setup() {
   Serial1.begin(115200);
   Serial.begin(115200);
-
+  
   lcd.begin(16, 2);
+
+  char* tab;
+
+  tab = (char*)malloc(5);
 }
 
 char dane;
