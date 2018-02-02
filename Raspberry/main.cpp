@@ -19,18 +19,23 @@
 // }
 
 #include <iostream>
-#include <bitset>
+#include "Communication.h"
 
 using namespace std;
 
 int main(){
-    unsigned int crc = 0xf2f3;
-    unsigned char b[2] = {0xf3,0xF0};
+    //unsigned int crc = 0xf2f3;
+
+    Communication comm;
+    comm.csend((char*)"siema",6);
+    
+
+    //unsigned char b[2] = {0xf3,0xF0};
     //b[0] = 4;
-     b[0] = crc >> 8;
-     b[1] = crc;
+     //b[0] = crc >> 8;
+     //b[1] = crc;
 
-    cout << hex << crc << endl;
+    //cout << hex << crc << endl;
 
-    cout << endl << bitset<8>(b[0]) << endl << bitset<8>(b[1]);// << endl << b[1];
+    //cout << endl << bitset<8>(b[0]) << endl << bitset<8>(b[1]);// << endl << b[1];
 }
