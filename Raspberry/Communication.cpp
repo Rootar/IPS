@@ -1,5 +1,11 @@
 #include "Communication.h"
 
+//  numer_paczki
+//  długość_paczki
+//  ||dane||
+//  crc_1
+//  crc_2
+
 Communication::Communication(const char* portname, int speed, int timeout)
 : connection(portname, speed, timeout), num(0){
 
@@ -24,5 +30,5 @@ int Communication::csend(const unsigned char* message, uint8_t size){
 }
 
 int Communication::creceive(unsigned char* buff, uint8_t size){
-
+    //unsigned char num = 
 }
