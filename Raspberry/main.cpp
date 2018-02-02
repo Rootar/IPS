@@ -27,7 +27,7 @@ int main(){
     //unsigned int crc = 0xf2f3;
 
     Communication comm;
-    comm.csend((char*)"siema",6);
+    comm.csend((const unsigned char*)"siema",6);
     
 
     //unsigned char b[2] = {0xf3,0xF0};
