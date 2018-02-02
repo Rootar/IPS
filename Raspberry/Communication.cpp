@@ -7,8 +7,8 @@
 //  crc_2
 
 Communication::Communication(const char* portname, int speed, int timeout)
-: connection(portname, speed, timeout), num(0){
-
+: connection(portname, speed, timeout){
+    num = 0;
 }
 
 int Communication::csend(const unsigned char* message, uint8_t size){

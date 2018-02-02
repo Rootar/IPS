@@ -11,7 +11,7 @@
 class Communication{
 private:
     Connection connection;
-    static uint8_t num;
+    static uint8_t num = 0;
     unsigned char reciveBuff[BUFFER_SIZE + CONTROLL_SIZE];
 
 public:
