@@ -1,5 +1,5 @@
 #include "Communication.h"
-
+#include "Crc16.h"
 //  numer_paczki
 //  długość_paczki
 //  ||dane||
