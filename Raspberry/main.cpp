@@ -19,7 +19,7 @@
 // }
 
 #include <iostream>
-#include "Communication.h"
+#include "Communication.cpp"
 
 using namespace std;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Connection.h"
+#include "Connection.cpp"
 #include <inttypes.h>
-
+#include "Crc16.h"
 
 #define CONTROLL_SIZE 4
 
