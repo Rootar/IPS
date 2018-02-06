@@ -44,33 +44,26 @@ private:
     int set_interface_attribs(int fd, int speed, int parity, int timeout){
         struct termios tty;
         memset(&tty, 0, sizeof tty);
-        if (tcgetattr (fd, &tty) != 0){
+        if(tcgetattr(fd, &tty) != 0){
                 return -1;
         }
 
         cfsetospeed(&tty, speed);
         cfsetispeed(&tty, speed);
 
-        tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
-        // disable IGNBRK for mismatched speed tests; otherwise receive $
-        // as \000 chars
-        tty.c_iflag &= ~IGNBRK;         // disable break processing
-        tty.c_lflag = 0;                // no signaling chars, no echo,
-                                        // no canonical processing
-        tty.c_oflag = 0;                // no remapping, no delays
-        tty.c_cc[VMIN]  = 0;            // read doesn't block
-        tty.c_cc[VTIME] = timeout;      // set timeout 1 == 0.1s
+        
+        tty.c_cc[VMIN]  = 0;
+        tty.c_cc[VTIME] = 0;
 
-        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+        tty.c_iflag = (IGNBRK | IGNCR);
+        
+        tty.c_oflag = (OPOST);
 
-        tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                        // enable reading
-        tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-        tty.c_cflag |= parity;
-        tty.c_cflag &= ~CSTOPB;
-        tty.c_cflag &= ~CRTSCTS;
+        tty.c_cflag |= (CREAD | CBAUDEX | speed);
 
-        if (tcsetattr(fd, TCSANOW, &tty) != 0){
+        tty.c_lflag = 0;
+
+        if(tcsetattr(fd, TCSANOW, &tty) != 0){
             return -1;
         }
         return 0;
@@ -81,7 +74,7 @@ private:
         if (tcgetattr (fd, &tty) != 0){}
 
         tty.c_cc[VMIN]  = should_block ? 1 : 0;
-        tty.c_cc[VTIME] = timeout;            // 0.5 seconds read timeout
+        tty.c_cc[VTIME] = timeout;            // 0.1 seconds read timeout
 
         if(tcsetattr(fd, TCSANOW, &tty) != 0){}
     }
@@ -89,73 +82,6 @@ private:
 
 public:
     Connection(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1){
-        fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
-
-        if(fd < 0) throw cant_open_port();
-
-        set_interface_attribs(fd, speed, 0, timeout);
-        set_blocking(fd, 0, timeout);
-    }
-    ssize_t cwrite(const void* buff, size_t size){
-        usleep(10000);  //bez tego się rypie. Po 195 znakach jest dupa. Trzeba trochę odstać. Connectionv2 może naprawi problem...
-        return write(fd, buff, size);        
-    }
-    ssize_t cread(void* buff, size_t size){
-        return read(fd, buff, size);
-    }
-};
-
-class Connectionv2{
-private:
-    int set_interface_attribs(int fd, int speed, int parity, int timeout){
-        struct termios tty;
-        memset(&tty, 0, sizeof tty);
-        if (tcgetattr (fd, &tty) != 0){
-                return -1;
-        }
-
-        cfsetospeed(&tty, speed);
-        cfsetispeed(&tty, speed);
-
-        tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
-        // disable IGNBRK for mismatched speed tests; otherwise receive $
-        // as \000 chars
-        tty.c_iflag &= ~IGNBRK;         // disable break processing
-        tty.c_lflag = 0;                // no signaling chars, no echo,
-                                        // no canonical processing
-        tty.c_oflag = 0;                // no remapping, no delays
-        tty.c_cc[VMIN]  = 0;            // read doesn't block
-        tty.c_cc[VTIME] = timeout;      // set timeout 1 == 0.1s
-
-        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
-
-        tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                        // enable reading
-        tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-        tty.c_cflag |= parity;
-        tty.c_cflag &= ~CSTOPB;
-        tty.c_cflag &= ~CRTSCTS;
-
-        if (tcsetattr(fd, TCSANOW, &tty) != 0){
-            return -1;
-        }
-        return 0;
-    }
-    void set_blocking(int fd, int should_block, int timeout){
-        struct termios tty;
-        memset(&tty, 0, sizeof tty);
-        if (tcgetattr (fd, &tty) != 0){}
-
-        tty.c_cc[VMIN]  = should_block ? 1 : 0;
-        tty.c_cc[VTIME] = timeout;            // 0.5 seconds read timeout
-
-        if(tcsetattr(fd, TCSANOW, &tty) != 0){}
-    }
-    public: //chwilowe!!!!!!!!!
-    int fd;
-
-public:
-    Connectionv2(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1){
         fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 
         if(fd < 0) throw cant_open_port();
@@ -192,6 +118,16 @@ private:
 };
 
 int main(){
+    
+}
+
+// SEKCJA KOMENTARZY
+
+/*
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    */
+    
     /*  Przykład użycia klasy Connection
     Connection connection;
 
@@ -204,14 +140,12 @@ int main(){
     connection.cwrite(tekst, strlen(tekst));
     */
 
+
+
     /* przykład użycia klasy Communication oraz testy jej szybkości
     Communication communication("/dev/ttyAMA0",B115200,1);
     const char* tekst = "0123456789 ";
     
-    struct timeval start, end;
-
-    gettimeofday(&start, NULL);
-
     // for(int i = 0; i < 10000; i++)        
     //     communication.csend(tekst, strlen(tekst));
     
@@ -226,11 +160,29 @@ int main(){
 
     */
 
-    const char* tekst3 = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+    /*
+    const char* tekst3 = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70";
     Connectionv2 connection;
-    write(connection.fd, tekst3, strlen(tekst3));
 
+
+    char buf[] = {4, 3, 1, 2, 4, 10};
+    connection.cwrite(tekst3, strlen(tekst3));
+
+    char bufIn[100];
+
+    while(true){
+		int x = connection.cread(bufIn,sizeof(bufIn));
+		if(x > 0){
+            std::cout << (int)bufIn[0];
+			std::cout << "tekst:" << bufIn;
+            
+			for(int i = 0; i < sizeof(bufIn); i++)
+				bufIn[i] = '\0';
+		}
+	}
+
+    //cout << "in:" << bufIn;
     gettimeofday(&end, NULL);
-
     cout << end.tv_sec - start.tv_sec;
-}
+
+    */
