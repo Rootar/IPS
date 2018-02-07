@@ -1,21 +1,28 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <string>
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
 #include <inttypes.h>
 
-#include <sys/time.h> //na czas testow
+#include <queue>
+
+#include <sys/time.h> //na czas testow usleep(10000);
 #include <cmath>
 
 #define POLY 0x8408
+#define HEADER_SIZE 3
+#define FOOTER_SIZE 2
+#define MAX_DATA_SIZE 4096
+
 
 using namespace std;
 
 class cant_open_port{};
 
-unsigned short crc16(char *data_p, unsigned short length){
+ uint16_t crc16(const char *data_p, unsigned short length){
       unsigned char i;
       unsigned int data;
       unsigned int crc = 0xffff;
@@ -50,18 +57,19 @@ private:
 
         cfsetospeed(&tty, speed);
         cfsetispeed(&tty, speed);
-
         
-        tty.c_cc[VMIN]  = 0;
+        tty.c_lflag = 0;        // zerujemy flagi lokalne, w tym ICANON
+        
+        tty.c_cc[VMIN]  = 0;    // nie blokujemy czytania, wszystko działa od razu
         tty.c_cc[VTIME] = 0;
 
-        tty.c_iflag = (IGNBRK | IGNCR);
+        tty.c_iflag = (IGNBRK | IGNCR); //ignorujemy break i cr
         
-        tty.c_oflag = (OPOST);
+        tty.c_oflag = ~OPOST;  // wyłączamy pzetwarzanie
 
-        tty.c_cflag |= (CREAD | CBAUDEX | speed);
+        tty.c_cflag |= (CREAD | CBAUDEX | speed); //możemy czytać, duże prędkości, prędkość
 
-        tty.c_lflag = 0;
+        
 
         if(tcsetattr(fd, TCSANOW, &tty) != 0){
             return -1;
@@ -90,7 +98,6 @@ public:
         set_blocking(fd, 0, timeout);
     }
     ssize_t cwrite(const void* buff, size_t size){
-        usleep(10000);
         return write(fd, buff, size);        
     }
     ssize_t cread(void* buff, size_t size){
@@ -98,30 +105,122 @@ public:
     }
 };
 
+// ff
+//  numer_paczki 1B
+//  długość_paczki 1B
+//  ||dane|| n
+//  crc_1
+//  crc_2
+
 class Communication{
 private:
     Connection connection;
-    uint8_t num;
-    //unsigned char reciveBuff[BUFFER_SIZE + CONTROLL_SIZE];
+    uint8_t numberOfPackage;
+    uint32_t position;
+    unsigned char receiveBuff[HEADER_SIZE + FOOTER_SIZE + MAX_DATA_SIZE];
 
 public:
     Communication(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1){
         Connection connection(portname, speed, timeout);
-        num = 0;
+        numberOfPackage = 0;
+        position = 0;
     }
-    int csend(const char* message, uint8_t size){
-        connection.cwrite(message, size);
+
+    //metoda transcive do wysyłania i odbierania danych
+
+    ssize_t csend(const string& message){
+        uint8_t mesSize = message.size();
+        uint8_t cmSize = mesSize + HEADER_SIZE + FOOTER_SIZE;
+        
+
+        char* charMessage;
+        charMessage = (char*)malloc(cmSize * sizeof(char));
+
+        //memset(charMessage, 0, cmSize);
+
+        charMessage[0] = 0xFF;                 //1 bajt
+        charMessage[1] = numberOfPackage++;                 //1 bajt
+        charMessage[2] = mesSize;               //2 bajt
+
+        strcpy(charMessage + HEADER_SIZE, message.c_str());
+
+        uint16_t crc;
+        crc = crc16(charMessage, cmSize - FOOTER_SIZE);  
+
+        cout << "crc:" << crc;
+
+        *(uint16_t*)(charMessage + cmSize - FOOTER_SIZE) = crc;
+
+        // charMessage[cmSize - 2] = crc >> 8;    //n-1 bajt
+        // charMessage[cmSize - 1] = crc;         //n-ty bajt
+        ssize_t sent;
+        sent = connection.cwrite(charMessage, cmSize);
+
+        assert((sent == cmSize) && "Nie udalo sie wyslac wszystkich danych hej");
+
+        return sent;
     }
 
 private:
-    //int creceive(unsigned char* buff, uint8_t size);
+    char* concatenation(){
+        charMessage[0] = num++;                 //1 bajt
+        charMessage[1] = mesSize;               //2 bajt
+         //x bajtów - dane   TU SKOŃCZYŁEm
+    }
+    int creceive(queue<string>& messageQueue){
+        ssize_t received;
+        received = cread(receiveBuff + position, MAX_DATA_SIZE - position);
+        assert((received > 0) && "Nie udalo sie pobrac danych");
+        position += received;
+
+        while(true){ // wyszukiwanie nagłówka pakietu - FF
+            ssize_t start = 0;
+            while((*(receiveBuff + start) != 0xFF) && (start++ < position)); //clean code
+            
+            if(start == position)
+                return -1;
+            
+
+            memmove(receiveBuff, receiveBuff + start, position - start);
+            position -= start;
+
+            if(position < HEADER_SIZE + FOOTER_SIZE)
+                return -1;
+
+            uint8_t len = *(receiveBuff + HEADER_SIZE - 1);
+            packetSize = HEADER_SIZE + FOOTER_SIZE + len;
+            if(position < packetSize)
+                return -1;
+
+            uint16_t crc = crc16(receiveBuff, HEADER_SIZE + size);
+
+            uint16_t crc2 = *(uint16_t*)(receiveBuff + len + HEADER_SIZE);
+
+            printf("crc:%04x, %04x\n", crc, crc2);
+
+            if(crc == crc2){           
+                messageQueue.push(string(receiveBuff + HEADER_SIZE, len));
+                memmove(receiveBuff, receiveBuff + packetSize, position - packetSize);
+                position -= packetSize;
+            }
+            receiveBuff[0] = 0;
+        }
+    }
 };
 
 int main(){
+    queue<string> kolejka;
+    Communication com;
     
+    com.csend(kolejka.front());
+    while(true){
+    com.creceive(kolejka);
+
+    cout << kolekja.back();
+    }
 }
 
-// SEKCJA KOMENTARZY
+// SEKCJA KOMENTARZY.
 
 /*
     struct timeval start, end;
