@@ -16,7 +16,7 @@
 #define POLY 0x8408
 #define HEADER_SIZE 3
 #define FOOTER_SIZE 2
-#define MAX_DATA_SIZE 4096
+#define MAX_DATA_SIZE 1024
 
 
 using namespace std;
@@ -187,8 +187,8 @@ public:
         
         assert((received > 0) && "Nie udalo sie pobrac danych");
         position += received;
-
-        while(1==1){ // wyszukiwanie nagłówka pakietu - FF
+        for(int ity = 0; ity < 5; ity++){
+        //while(1==1){ // wyszukiwanie nagłówka pakietu - FF
             //AX:
             cout << " elo "; //++testowo
             ssize_t start = 0;
