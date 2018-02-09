@@ -8,6 +8,7 @@
 #include <inttypes.h>
 
 #include <queue>
+#include <assert.h>
 
 #include <sys/time.h> //na czas testow usleep(10000);
 #include <cmath>
@@ -22,8 +23,8 @@ using namespace std;
 
 class cant_open_port{};
 
- uint16_t crc16(const char *data_p, unsigned short length){
-      unsigned char i;
+ uint16_t crc16(char *data_p, unsigned short length){
+      char i;
       unsigned int data;
       unsigned int crc = 0xffff;
 
@@ -117,13 +118,15 @@ private:
     Connection connection;
     uint8_t numberOfPackage;
     uint32_t position;
-    unsigned char receiveBuff[HEADER_SIZE + FOOTER_SIZE + MAX_DATA_SIZE];
+    char receiveBuff[HEADER_SIZE + FOOTER_SIZE + MAX_DATA_SIZE];
 
 public:
     Communication(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1){
         Connection connection(portname, speed, timeout);
         numberOfPackage = 0;
         position = 0;
+        for(int i = 0; i < HEADER_SIZE + FOOTER_SIZE + MAX_DATA_SIZE; i++)
+            receiveBuff[i] = 0;
     }
 
     //metoda transcive do wysyłania i odbierania danych
@@ -158,66 +161,91 @@ public:
 
         assert((sent == cmSize) && "Nie udalo sie wyslac wszystkich danych hej");
 
+        delete charMessage;
         return sent;
     }
 
-private:
-    char* concatenation(){
-        charMessage[0] = num++;                 //1 bajt
-        charMessage[1] = mesSize;               //2 bajt
-         //x bajtów - dane   TU SKOŃCZYŁEm
-    }
+public:
+    // char* concatenation(){
+    //     charMessage[0] = num++;                 //1 bajt
+    //     charMessage[1] = mesSize;               //2 bajt
+    //      //x bajtów - dane   TU SKOŃCZYŁEm
+    // }
     int creceive(queue<string>& messageQueue){
-        ssize_t received;
-        received = cread(receiveBuff + position, MAX_DATA_SIZE - position);
+        ssize_t received = 8;               //++testowo
+        receiveBuff[0] = 0xff;//++testowo
+        receiveBuff[1] = 0x01;//++testowo
+        receiveBuff[2] = 0x03;//++testowo
+        receiveBuff[3] = 97;//++testowo
+        receiveBuff[4] = 97;//++testowo
+        receiveBuff[5] = 97;//++testowo
+        receiveBuff[6] = 0x75;//++testowo
+        receiveBuff[7] = 0xbf;  //++testowo
+        for(int i = 0; i < received; i++){printf("%02x ",receiveBuff[i]);}  //++testowo
+
+        //received = connection.cread(receiveBuff + position, MAX_DATA_SIZE - position);
+        
         assert((received > 0) && "Nie udalo sie pobrac danych");
         position += received;
 
-        while(true){ // wyszukiwanie nagłówka pakietu - FF
+        while(1==1){ // wyszukiwanie nagłówka pakietu - FF
+            //AX:
+            cout << " elo "; //++testowo
             ssize_t start = 0;
-            while((*(receiveBuff + start) != 0xFF) && (start++ < position)); //clean code
-            
+            while((*(receiveBuff + start) != 0xFF) && (start++ < position)); //clean code   //++ wykonuje się 0 razy ////++testowo
+
             if(start == position)
                 return -1;
-            
 
             memmove(receiveBuff, receiveBuff + start, position - start);
             position -= start;
+            printf("position =%d",position);//++testowo
+            for(int i = 0; i < received; i++){printf("%02x ",receiveBuff[i]);}//++testowo
+            
 
-            if(position < HEADER_SIZE + FOOTER_SIZE)
+            if(position < HEADER_SIZE + FOOTER_SIZE)    //coś jest, ale to nawet nie są poprawne dane. powinnismy szukac ff
                 return -1;
 
             uint8_t len = *(receiveBuff + HEADER_SIZE - 1);
-            packetSize = HEADER_SIZE + FOOTER_SIZE + len;
-            if(position < packetSize)
+            printf("len =%d",len); //++testowo
+            
+            uint8_t packetSize = HEADER_SIZE + FOOTER_SIZE + len;
+
+            if(position < packetSize)   //no coś tutaj najwyraźniej nie gra. Miało być tyle, a tu dupa. czegoś brakuje
                 return -1;
 
-            uint16_t crc = crc16(receiveBuff, HEADER_SIZE + size);
-
+            uint16_t crc = crc16(receiveBuff, HEADER_SIZE + len);
             uint16_t crc2 = *(uint16_t*)(receiveBuff + len + HEADER_SIZE);
 
-            printf("crc:%04x, %04x\n", crc, crc2);
-
-            if(crc == crc2){           
+            
+            printf("crc:%02x, %02x\n", crc, crc2);
+            cout << " aaaaaaaaaaaaaaaaaaaa "; //++testowo
+            if(crc == crc2){  
+                cout << " bbbbbbbbbbbbbbbbbbb "; //++testowo         
                 messageQueue.push(string(receiveBuff + HEADER_SIZE, len));
-                memmove(receiveBuff, receiveBuff + packetSize, position - packetSize);
+                cout << " zzzzzzzzzzzzzzzzzz "; //++testowo
+                memmove(receiveBuff, receiveBuff + packetSize, MAX_DATA_SIZE + HEADER_SIZE + FOOTER_SIZE - packetSize); //zamiast max_data... bylo position
                 position -= packetSize;
+                cout << " yyyyyyyyyyyyyyyyy "; //++testowo
             }
             receiveBuff[0] = 0;
+            for(int i = 0; i < received * 3; i++){printf("%02x ",receiveBuff[i]);}  //++testowo
+            
+            cout << " xxxxxxxxxxx "; //++testowo
+            //goto AX;
         }
     }
 };
 
 int main(){
-    queue<string> kolejka;
+    queue<string> que;
     Communication com;
-    
-    com.csend(kolejka.front());
-    while(true){
-    com.creceive(kolejka);
-
-    cout << kolekja.back();
-    }
+    //com.csend(kolejka.front());
+    //sleep(5);
+    //while(true){
+        com.creceive(que);
+        cout << que.front();
+    //}
 }
 
 // SEKCJA KOMENTARZY.
