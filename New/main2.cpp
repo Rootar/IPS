@@ -187,8 +187,8 @@ public:
         
         assert((received > 0) && "Nie udalo sie pobrac danych");
         position += received;
-        for(int ity = 0; ity < 5; ity++){
-        //while(1==1){ // wyszukiwanie nagłówka pakietu - FF
+        //for(int ity = 0; ity < 5; ity++){
+        while(received > 0){ // wyszukiwanie nagłówka pakietu - FF
             //AX:
             cout << " elo "; //++testowo
             ssize_t start = 0;
@@ -226,6 +226,7 @@ public:
                 cout << " zzzzzzzzzzzzzzzzzz "; //++testowo
                 memmove(receiveBuff, receiveBuff + packetSize, MAX_DATA_SIZE + HEADER_SIZE + FOOTER_SIZE - packetSize); //zamiast max_data... bylo position
                 position -= packetSize;
+                received -= packetSize;
                 cout << " yyyyyyyyyyyyyyyyy "; //++testowo
             }
             receiveBuff[0] = 0;
