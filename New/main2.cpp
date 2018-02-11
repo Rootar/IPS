@@ -161,6 +161,7 @@ public:
 
         assert((sent == cmSize) && "Nie udalo sie wyslac wszystkich danych hej");
 
+
         delete charMessage;
         return sent;
     }
@@ -181,26 +182,20 @@ public:
         receiveBuff[5] = 97;//++testowo
         receiveBuff[6] = 0x75;//++testowo
         receiveBuff[7] = 0xbf;  //++testowo
-        for(int i = 0; i < received; i++){printf("%02x ",receiveBuff[i]);}  //++testowo
 
         //received = connection.cread(receiveBuff + position, MAX_DATA_SIZE - position);
         
         assert((received > 0) && "Nie udalo sie pobrac danych");
         position += received;
-        //for(int ity = 0; ity < 5; ity++){
         while(received > 0){ // wyszukiwanie nagłówka pakietu - FF
-            //AX:
-            cout << " elo "; //++testowo
             ssize_t start = 0;
-            while((*(receiveBuff + start) != 0xFF) && (start++ < position)); //clean code   //++ wykonuje się 0 razy ////++testowo
+            while((*(receiveBuff + start) != 0xFF) && (start++ < position)); //clean code
 
             if(start == position)
                 return -1;
 
             memmove(receiveBuff, receiveBuff + start, position - start);
             position -= start;
-            printf("position =%d",position);//++testowo
-            for(int i = 0; i < received; i++){printf("%02x ",receiveBuff[i]);}//++testowo
             
 
             if(position < HEADER_SIZE + FOOTER_SIZE)    //coś jest, ale to nawet nie są poprawne dane. powinnismy szukac ff
@@ -219,26 +214,20 @@ public:
 
             
             printf("crc:%02x, %02x\n", crc, crc2);
-            cout << " aaaaaaaaaaaaaaaaaaaa "; //++testowo
             if(crc == crc2){  
-                cout << " bbbbbbbbbbbbbbbbbbb "; //++testowo         
                 messageQueue.push(string(receiveBuff + HEADER_SIZE, len));
-                cout << " zzzzzzzzzzzzzzzzzz "; //++testowo
                 memmove(receiveBuff, receiveBuff + packetSize, MAX_DATA_SIZE + HEADER_SIZE + FOOTER_SIZE - packetSize); //zamiast max_data... bylo position
                 position -= packetSize;
                 received -= packetSize;
-                cout << " yyyyyyyyyyyyyyyyy "; //++testowo
             }
             receiveBuff[0] = 0;
-            for(int i = 0; i < received * 3; i++){printf("%02x ",receiveBuff[i]);}  //++testowo
             
-            cout << " xxxxxxxxxxx "; //++testowo
-            //goto AX;
         }
     }
 };
 
 int main(){
+    /*
     queue<string> que;
     Communication com;
     //com.csend(kolejka.front());
@@ -247,6 +236,21 @@ int main(){
         com.creceive(que);
         cout << que.front();
     //}
+    */
+    Connection conn;
+    struct itimerval timer;
+    timer.it_value.tv_sec = 1;
+    //int s_time = setitimer(ITIMER_REAL, &timer, NULL);
+    
+    //int g_time = getitimer(ITIMER_REAL, &timer);
+
+    printf("set time: %d \nget time: %d \n",s_time, g_time);
+
+    sleep(3);
+    
+    char buff[300];
+    conn.cread(buff,32);
+    cout << buff;
 }
 
 // SEKCJA KOMENTARZY.
