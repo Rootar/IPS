@@ -85,8 +85,14 @@ case "$stage" in
 		sudo systemctl enable ssh
 		sudo systemctl start ssh
 		sudo echo "6" | sudo tee temp > /dev/null ;&
-		
+
 	"6")
+
+		#dodawanie skryptu do autostartu
+		sudo echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt > /dev/null
+		sudo echo "7" | sudo tee temp > /dev/null ;&
+		
+	"7")
 
 		#usuniecie pliku z autostartu oraz pliku temp
 		sudo sed -i '/setup-handless.sh/d' /etc/profile
