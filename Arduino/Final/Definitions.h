@@ -1,4 +1,10 @@
-//pins
+//INCLUDES
+
+
+
+
+
+//ENGINE PIN
 
 #define A_ENABLE 2  //PWM
 #define A_PHASE 22  //0 - przod, 1 - tyl DIGITAL
@@ -9,6 +15,7 @@
 #define LEFT_ENCODER_1 41
 #define RIGHT_ENCODER_0 42
 #define RIGHT_ENCODER_1 43
+
 
 //speeds
 
@@ -24,3 +31,12 @@
 #define RIGHT_FRONT HIGH
 #define LEFT_BACK HIGH
 #define RIGHT_BACK LOW
+
+//LEDS
+
+#define LED_PIN 12
+#define LED_COUNT 7
+#define LED_COLORS 14
+
+
+

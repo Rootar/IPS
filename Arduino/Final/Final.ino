@@ -1,5 +1,10 @@
 #include "Definitions.h"
 #include "Engine.h"
+#include "Leds.h"
+
+#include <U8glib.h>
+
+
 
 void setup() {
   Serial.begin(115200);       //monitor portu szeregowego
@@ -14,23 +19,29 @@ void setup() {
   pinMode(MODE, OUTPUT);      //ustawienie pinu rozdzaju sterowania na output
   digitalWrite(MODE, HIGH);   //ustawienie uproszczonego sterowania ;P
 
-  pinMode(40, INPUT);         //uruchomienie enkoderóœ
-  pinMode(42, INPUT);
+  pinMode(LEFT_ENCODER_0, INPUT);         //uruchomienie enkoderóœ
+  pinMode(RIGHT_ENCODER_0, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(40), RightCounter, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(42), LeftCounter, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_0), RightCounter, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_0), LeftCounter, CHANGE);
 
-  
+  setLedColor(1);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  setLedColor(4);
+  
   MovementSpeed(3);
   delay(5000);
+  
   MovementSpeed(2);
   delay(5000);
+  
+  setLedColor(2);
+  
   MovementSpeed(0);
   delay(1000);
+  
   MovementSpeed(-1);
-  delay(3000);
+  delay(1000);
 }
