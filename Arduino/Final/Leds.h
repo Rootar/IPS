@@ -20,7 +20,7 @@ rgb_color colors[LED_COLORS] = {
 };
 rgb_color colorArray[LED_COUNT];
 
-void setLedColor(int color) {
+void SetLedColor(int color) {
   for (uint8_t i = 0; i < LED_COUNT; i++)
   {
     colorArray[i] = colors[color];
@@ -29,13 +29,13 @@ void setLedColor(int color) {
   leds.write(colorArray, LED_COUNT);
 }
 
-void blink() {
+void Blink() {
   rgb_color temp = colorArray[0];
 
   for(int i = 0; i < 5; i++){
-    setLedColor(12);
+    SetLedColor(12);
     delay(500);
-    setLedColor(13);
+    SetLedColor(13);
     delay(500);
   }
   

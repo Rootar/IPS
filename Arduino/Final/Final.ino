@@ -1,10 +1,8 @@
 #include "Definitions.h"
 #include "Engine.h"
 #include "Leds.h"
-
-#include <U8glib.h>
-
-
+#include "Oled.h"
+#include "Serwo.h"
 
 void setup() {
   Serial.begin(115200);       //monitor portu szeregowego
@@ -25,23 +23,41 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_0), RightCounter, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_0), LeftCounter, CHANGE);
 
-  setLedColor(1);
+  //serwo1.attach(SERVO_X);
+  ServoY(80);
+
+  ServoX(20);
+  
+
+  SetLedColor(1);
+  Blink();
+
+  String tekst = String("dupa");
+  String tekst2 = String("siema");
+  Write(tekst);
+  delay(2000);
+  Write(tekst2);
+
+  MovementSpeed(1);
+  delay(2000);
+  MovementSpeed(3);
+  MovementSpeed(0);
 }
 
 void loop() {
-  setLedColor(4);
-  
-  MovementSpeed(3);
-  delay(5000);
-  
-  MovementSpeed(2);
-  delay(5000);
-  
-  setLedColor(2);
-  
-  MovementSpeed(0);
-  delay(1000);
-  
-  MovementSpeed(-1);
-  delay(1000);
+//  SetLedColor(4);
+//  
+//  MovementSpeed(3);
+//  delay(5000);
+//  
+//  MovementSpeed(2);
+//  delay(5000);
+//  
+//  SetLedColor(2);
+//  
+//  MovementSpeed(0);
+//  delay(1000);
+//  
+//  MovementSpeed(-1);
+//  delay(1000);
 }

@@ -38,5 +38,8 @@
 #define LED_COUNT 7
 #define LED_COLORS 14
 
+//SERVO
+#define SERVO_X 8
+#define SERVO_Y 9
 
 
