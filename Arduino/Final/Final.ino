@@ -23,7 +23,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_0), RightCounter, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_0), LeftCounter, CHANGE);
 
-  //serwo1.attach(SERVO_X);
+  
+
   ServoY(80);
 
   ServoX(20);
@@ -37,15 +38,18 @@ void setup() {
   Write(tekst);
   delay(2000);
   Write(tekst2);
-
+  
   MovementSpeed(1);
   delay(2000);
   MovementSpeed(3);
   MovementSpeed(0);
+  Shot();
 }
 
+
+
 void loop() {
-//  SetLedColor(4);
+  SetLedColor(4);
 //  
 //  MovementSpeed(3);
 //  delay(5000);
@@ -59,5 +63,7 @@ void loop() {
 //  delay(1000);
 //  
 //  MovementSpeed(-1);
-//  delay(1000);
+  delay(1000);
+Shot();
+delay(1000);
 }

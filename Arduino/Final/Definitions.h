@@ -35,7 +35,7 @@
 //LEDS
 
 #define LED_PIN 12
-#define LED_COUNT 7
+#define LED_COUNT 4
 #define LED_COLORS 14
 
 //SERVO
