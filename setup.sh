@@ -105,8 +105,12 @@ case "$stage" in
 		
 	"6")
 
+		sudo echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt > /dev/null	
+		sudo sed -i 's/console=serial0,115200//g' /boot/cmdline.txt
 		#usuniecie pliku z autostartu oraz pliku temp
 		sudo sed -i '/setup.sh/d' /etc/profile
-		sudo rm -rf temp ;;
+		sudo rm -rf temp
+		sudo reboot ;;
+		
 
 esac
