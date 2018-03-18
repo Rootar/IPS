@@ -46,24 +46,16 @@ void setup() {
   Shot();
 }
 
-
+char dane;
 
 void loop() {
-  SetLedColor(4);
-//  
-//  MovementSpeed(3);
-//  delay(5000);
-//  
-//  MovementSpeed(2);
-//  delay(5000);
-//  
-//  SetLedColor(2);
-//  
-//  MovementSpeed(0);
-//  delay(1000);
-//  
-//  MovementSpeed(-1);
-  delay(1000);
-Shot();
-delay(1000);
+  if(Serial1.available() > 0){
+    dane = Serial1.read();
+    Serial.print(dane);
+  }
+
+  if(Serial.available() > 0){
+    dane = Serial.read();
+    Serial1.print(dane);
+  }
 }
