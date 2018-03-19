@@ -1,13 +1,13 @@
 #include "Communication.h"
-
+#include <iostream>
 Communication::Communication(const char* portname, int speed, int timeout){
     Connection connection(portname, speed, timeout);
     numberOfPackage = 0;
     position = 0;
 }
 
-ssize_t Communication::csend(const string& message){
-    uint8_t mesSize = message.size();
+ssize_t Communication::csend(const char* message, size_t size){
+    uint8_t mesSize = size;
     uint8_t cmSize = mesSize + HEADER_SIZE + FOOTER_SIZE;
     
 
@@ -20,7 +20,7 @@ ssize_t Communication::csend(const string& message){
     charMessage[1] = numberOfPackage++;                 //1 bajt
     charMessage[2] = mesSize;               //2 bajt
 
-    strcpy(charMessage + HEADER_SIZE, message.c_str());
+    strncpy(charMessage + HEADER_SIZE, message, mesSize);
 
     uint16_t crc;
     crc = crc16(charMessage, cmSize - FOOTER_SIZE);  

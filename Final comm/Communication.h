@@ -31,7 +31,7 @@ public:
 
     //metoda transcive do wysyłania i odbierania danych
 
-    ssize_t csend(const string& message);
+    ssize_t csend(const char* message, size_t size);
 
-    int creceive(queue<string>& messageQueue);
+    int creceive(queue<char*>& messageQueue);
 };
