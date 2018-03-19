@@ -1,23 +1,37 @@
 #pragma once
 
-#include "Connection.cpp"
+#include "Connection.h"
 #include <inttypes.h>
-#include "Crc16.h"
+#include <queue>
+#include <assert.h>
+#include <queue>
+#include <string.h>
+#include <string>
 
-#define CONTROLL_SIZE 4
+#define HEADER_SIZE 3
+#define FOOTER_SIZE 2
+#define MAX_DATA_SIZE 1024
 
-#define BUFFER_SIZE 100
+using namespace std;
+
+#define POLY 0x8408
+
 
 class Communication{
 private:
     Connection connection;
-    static uint8_t num;
-    unsigned char reciveBuff[BUFFER_SIZE + CONTROLL_SIZE];
+    uint8_t numberOfPackage;
+    uint32_t position;
+    char receiveBuff[HEADER_SIZE + FOOTER_SIZE + MAX_DATA_SIZE];
+
+    uint16_t crc16(char* data_p, int length);
 
 public:
     Communication(const char* portname = "/dev/ttyAMA0", int speed = B115200, int timeout = 1);
-    int csend(const unsigned char* message, uint8_t size);
 
-private:
-    int creceive(unsigned char* buff, uint8_t size);
+    //metoda transcive do wysyłania i odbierania danych
+
+    ssize_t csend(const char* message, size_t size);
+
+    int creceive(queue<char*>& messageQueue);
 };
