@@ -3,74 +3,142 @@
 #include "Leds.h"
 #include "Oled.h"
 #include "Serwo.h"
+#include "Wifi.h"
 
 
 void setup() {
   Serial.begin(115200);       //monitor portu szeregowego
   Serial1.begin(115200);      //port komunikacyjny z RP
-  Serial2.begin(115200);
+  Serial2.begin(115200);      //WiFi
 
-  pinMode(A_ENABLE, OUTPUT);  //ustawienie pinów do PWM na output
-  pinMode(B_ENABLE, OUTPUT);
-
-  pinMode(A_PHASE, OUTPUT);   //ustawienie pinów do kierunku jazdy na output
-  pinMode(B_PHASE, OUTPUT);
-
-  pinMode(MODE, OUTPUT);      //ustawienie pinu rozdzaju sterowania na output
-  digitalWrite(MODE, HIGH);   //ustawienie uproszczonego sterowania ;P
-
-  pinMode(LEFT_ENCODER_0, INPUT);         //uruchomienie enkoderóœ
-  pinMode(RIGHT_ENCODER_0, INPUT);
-
-  attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_0), RightCounter, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_0), LeftCounter, CHANGE);
-
-  //
-  //
-  //  ServoY(80);
-  //
-  //  ServoX(20);
-  //
-  //
-  //  SetLedColor(1);
-  //  Blink();
-  //
-  //  String tekst = String("dupa");
-  //  String tekst2 = String("siema");
-  //  Write(tekst);
-  //  delay(2000);
-  //  Write(tekst2);
-  //
-  //  MovementSpeed(1);
-  //  delay(2000);
-  //  MovementSpeed(3);
-  //  MovementSpeed(0);
-  //  Shot();
-
-//
-//  pinMode(2, OUTPUT);
-//  digitalWrite(2, HIGH);
-  pinMode(11,OUTPUT);    //ustawienie diód LED w stanie niskim
-  digitalWrite(11,LOW);
+  Engine();
+  Leds();
+  Oled();
+  Wifi();
   
-  sendData("AT+RST\r\n", 2000); // reset modułu
-  sendData("AT+CWMODE=2\r\n", 1000); // ustawienie w trybie Access Point
-  sendData("AT+CIFSR\r\n", 1000); // Uzyskanie adresu IP (domyślnie 192.168.4.1)
-  sendData("AT+CIPMUX=1\r\n", 1000); // Tryb połączeń wielokrotnych
-  sendData("AT+CIPSERVER=1,80\r\n", 1000); // Ustawienie serwera na porcie 80
-
-
+  
 }
 
 char dane;
+String danes;
+int command, value;
+
 
 void loop() {
-    if(Serial2.available()){
-      
+//    if(false)
+//    if(Serial2.available()){
+//      
+//      dane = Serial2.read();
+//      //Serial1.print(dane);
+//      Serial.print(dane);
+//    }
+//    
+//  if(false)
+//  if(Serial2.available()){
+//    Serial2.find("asdasd");
+//    danes = Serial2.read();
+//    Serial.print(danes);
+//  }
+  
+//  if(false)
+  if(Serial2.available()){
+    if(Serial2.find("+IPD")){
+      delay(10);
+
+      Serial2.find("COM:");
+      command = Serial2.read() - 48;
       dane = Serial2.read();
-      //Serial1.print(dane);
-      Serial.print(dane);
+      value = Serial2.read() - 48;
+      
+      switch(command){
+        case 1:
+          Serial.println("+=DIR=+");
+          if(value == 1){
+            MovementDirection(LEFT_FRONT, RIGHT_FRONT);
+            MovementSpeed(actualSpeed);
+          }
+          if(value == 2){
+            MovementDirection(LEFT_BACK, RIGHT_FRONT);
+            MovementSpeed(actualSpeed);
+          }
+          if(value == 3){
+            MovementDirection(LEFT_FRONT, RIGHT_BACK);
+            MovementSpeed(actualSpeed);
+          }
+          if(value == 4){
+            MovementDirection(LEFT_BACK, RIGHT_BACK);
+            MovementSpeed(actualSpeed);
+          }
+          if(value == 5)
+            MovementSpeed(0);
+            //MovementDirection(LEFT_FRONT, RIGHT_FRONT);            
+          break;
+          
+        case 2:
+          Serial.println("+=SPEED=+");
+          MovementSpeed(value);
+          actualSpeed = value;
+          break;
+          
+        case 3:
+          Serial.println("+=COLOR=+");
+          SetLedColor(value);
+          break;
+
+        case 4:
+          Serial.println("+=BLINK=+");
+          Blink();
+          break;
+
+        case 5:
+          Serial.println("+=TEXT=+");
+          danes = Serial2.read();
+          Write(danes);
+          break;
+          
+        case 6:
+          Serial.println("+=TOWER=+");
+          if(value == 1){
+            angleY += 5;
+            ServoY(angleY);
+          }
+          if(value == 2){
+            angleX += 5;
+            ServoX(angleX);
+          }
+          if(value == 3){
+            angleX -= 5;
+            ServoX(angleX);
+          }
+          if(value == 4){
+            angleY -= 5;
+            ServoY(angleY);
+          }
+          break;
+          
+        case 7:
+          Serial.println("+=SHOT=+");
+          Shot();
+          break;
+
+        default:
+          Serial.println("+=default=+");
+      }
     }
+  }
+
+
+
+
+  
+//    if(Serial2.available()){
+//      
+//      dane = Serial2.read();
+//      //Serial1.print(dane);
+//      Serial.print(dane);
+//    }
+
+    
     
 //    if(Serial.available()){
 //      dane = Serial.read();
@@ -104,22 +172,4 @@ void loop() {
 
 }
 
-String sendData(String command, const int timeout)
-    {
-        String response = "";
-        
-        Serial2.print(command); // wysłanie polecenia do ESP01
-        
-        long int time = millis();
-        
-        while( (time+timeout) > millis())
-        {
-          while(Serial2.available()) //jeśli są jakieś dane z modułu, wtedy następuje ich odczyt
-          {
-            char c = Serial2.read(); // odczyt kolejnego znaku
-            response += c;
-          }  
-        } 
-        Serial.print(response);
-        return response;
-    }
+

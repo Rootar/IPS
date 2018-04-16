@@ -3,6 +3,10 @@
 Servo serwo1;
 Servo serwo2;
 
+int angleX = 90;
+int angleY = 90;
+
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
 void ServoX(int angle){
   if(angle < 0)
     angle = 0;
@@ -19,6 +23,7 @@ void ServoX(int angle){
 }
 
 
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
 void ServoY(int angle){
   if(angle < 0)
     angle = 0;

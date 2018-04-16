@@ -42,4 +42,7 @@
 #define SERVO_X 8
 #define SERVO_Y 9
 
-
+#define WIFI_SSID String("Czolg_1")
+#define WIFI_PSWD String("12345678")
+#define WIFI_CHL String("5")
+#define WIFI_ENC String("3")

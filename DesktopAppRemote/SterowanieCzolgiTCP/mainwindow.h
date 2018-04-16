@@ -7,8 +7,9 @@
 #include <QtCore>
 #include <QDebug>
 #include <string>
-//#include <strings.h>
 #include <QString>
+
+#include <QKeyEvent>
 
 namespace Ui {
 class MainWindow;
@@ -74,6 +75,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 };
 
 #endif // MAINWINDOW_H

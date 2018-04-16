@@ -44,6 +44,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="stop">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -92,13 +95,16 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="maximum">
      <number>3</number>
     </property>
+    <property name="value">
+     <number>0</number>
+    </property>
     <property name="sliderPosition">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>

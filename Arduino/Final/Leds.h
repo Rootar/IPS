@@ -20,6 +20,18 @@ rgb_color colors[LED_COLORS] = {
 };
 rgb_color colorArray[LED_COUNT];
 
+
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
+void Leds(){
+  for (uint8_t i = 0; i < LED_COUNT; i++)
+  {
+    colorArray[i] = colors[12];
+  }
+
+  leds.write(colorArray, LED_COUNT);
+}
+
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
 void SetLedColor(int color) {
   for (uint8_t i = 0; i < LED_COUNT - 1; i++)
   {
@@ -29,6 +41,8 @@ void SetLedColor(int color) {
   leds.write(colorArray, LED_COUNT - 1);
 }
 
+
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
 void Blink() {
   rgb_color temp = colorArray[0];
 
@@ -45,6 +59,8 @@ void Blink() {
   }
 }
 
+
+//=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0=0
 void Shot(){
   colorArray[LED_COUNT - 1] = colors[0];
   leds.write(colorArray, LED_COUNT);
